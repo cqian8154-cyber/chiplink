@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>芯链商城 — 后台管理</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#F5F6FA;color:#1a1a2e;font-size:14px}
+:root{--blue:#3B7DE8;--red:#E24B4A;--green:#1D9E75;--amber:#EF9F27;--border:#E8ECF0;--text2:#666;--text3:#999}
+.nav{background:#0A1628;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:56px}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logo{width:34px;height:34px;background:linear-gradient(135deg,#3B7DE8,#1EC8A0);border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;font-weight:700}
+.nav-name{color:#fff;font-size:15px;font-weight:600}
+.nav-tag{background:rgba(255,255,255,.15);color:rgba(255,255,255,.8);padding:3px 10px;border-radius:4px;font-size:11px;margin-left:8px}
+.nav-right{display:flex;gap:10px;align-items:center}
+.nav-btn{padding:6px 14px;border-radius:6px;font-size:12px;cursor:pointer;border:none;font-weight:500}
+.btn-ghost{background:rgba(255,255,255,.1);color:#fff}
+.btn-ghost:hover{background:rgba(255,255,255,.2)}
+.layout{display:flex;min-height:calc(100vh - 56px)}
+.sidebar{width:200px;background:#fff;border-right:1px solid var(--border);padding:16px 0;flex-shrink:0}
+.sb-section{margin-bottom:8px}
+.sb-label{font-size:11px;color:var(--text3);padding:8px 16px 4px;text-transform:uppercase;letter-spacing:.8px;font-weight:500}
+.sb-item{display:flex;align-items:center;gap:8px;padding:9px 16px;cursor:pointer;font-size:13px;color:var(--text2);border-left:2px solid transparent;transition:.15s}
+.sb-item:hover{background:#F5F6FA;color:#1a1a2e}
+.sb-item.active{color:var(--blue);background:rgba(59,125,232,.06);border-left-color:var(--blue)}
+.badge{background:var(--blue);color:#fff;border-radius:10px;padding:1px 7px;font-size:11px;margin-left:auto}
+.badge-r{background:var(--red)}
+.content{flex:1;padding:20px;overflow-x:hidden}
+.page{display:none}.page.active{display:block}
+/* Stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid var(--border);border-radius:10px;padding:14px 16px}
+.stat-label{font-size:12px;color:var(--text2);margin-bottom:6px}
+.stat-val{font-size:22px;font-weight:700}
+.stat-sub{font-size:11px;margin-top:3px;color:var(--green)}
+.stat-sub.warn{color:var(--red)}
+/* Table */
+.tbl-wrap{background:#fff;border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:16px}
+.tbl-toolbar{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--border)}
+.sec-title{font-size:15px;font-weight:600;margin-bottom:14px}
+table{width:100%;border-collapse:collapse}
+th{font-size:12px;font-weight:600;color:var(--text2);padding:10px 14px;text-align:left;background:#F5F6FA;border-bottom:1px solid var(--border)}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid #F5F6FA}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFBFE}
+.s{display:inline-flex;align-items:center;padding:3px 9px;border-radius:4px;font-size:11px;font-weight:600}
+.s-pending{background:#FAEEDA;color:#854F0B}
+.s-quoted{background:#E6F1FB;color:#185FA5}
+.s-confirmed{background:#EAF3DE;color:#3B6D11}
+.s-processing{background:#EEEDFE;color:#534AB7}
+.s-shipped{background:#E1F5EE;color:#0F6E56}
+.s-cancelled{background:#FCEBEB;color:#A32D2D}
+/* Toolbar */
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.search-wrap{position:relative;max-width:280px;flex:1}
+.search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--text3)}
+.search-inp{width:100%;padding:8px 11px 8px 33px;border:1px solid var(--border);border-radius:8px;font-size:13px;background:#fff;outline:none}
+.search-inp:focus{border-color:var(--blue)}
+.sel{padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:#fff;font-size:13px;cursor:pointer}
+.btn-blue{padding:8px 16px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:5px}
+.btn-secondary{padding:8px 14px;background:#fff;color:#1a1a2e;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer}
+.ml-auto{margin-left:auto}
+/* Progress bar */
+.pbar{height:5px;background:#F0F0F0;border-radius:3px;margin-top:4px;overflow:hidden}
+.pbar-fill{height:100%;border-radius:3px}
+.p-ok{background:#639922}.p-low{background:#EF9F27}.p-out{background:#E24B4A}
+/* Form modal overlay style (no fixed, just a section) */
+.form-panel{background:#fff;border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:16px;display:none}
+.form-panel.open{display:block}
+.form-title{font-size:14px;font-weight:600;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.form-g{display:flex;flex-direction:column;gap:5px}
+.form-label{font-size:12px;color:var(--text2);font-weight:500}
+.form-inp{padding:8px 11px;border:1px solid var(--border);border-radius:7px;font-size:13px;outline:none}
+.form-inp:focus{border-color:var(--blue)}
+.btn-submit{padding:9px 20px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.btn-cancel{padding:9px 14px;background:#fff;color:#1a1a2e;border:1px solid var(--border);border-radius:8px;font-size:13px;cursor:pointer;margin-right:8px}
+/* Quote panel */
+.quote-panel{background:#F5F6FA;border-radius:8px;padding:12px;margin-top:8px;display:none}
+.quote-panel.open{display:block}
+.action-link{color:var(--blue);font-size:12px;cursor:pointer;margin-right:10px}
+.action-link:hover{text-decoration:underline}
+.loading{text-align:center;padding:40px;color:var(--text3)}
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">芯</div>
+    <div class="nav-name">芯链商城<span class="nav-tag">后台管理</span></div>
+  </div>
+  <div class="nav-right">
+    <a href="/"><button class="nav-btn btn-ghost">← 前台商城</button></a>
+    <span style="color:rgba(255,255,255,.5);font-size:12px">管理员</span>
+  </div>
+</nav>
+
+<div class="layout">
+  <div class="sidebar">
+    <div class="sb-section">
+      <div class="sb-label">概览</div>
+      <div class="sb-item active" onclick="showPage('dashboard')">📊 数据看板</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">运营</div>
+      <div class="sb-item" onclick="showPage('orders')">📋 订单管理 <span class="badge" id="badge-orders">—</span></div>
+      <div class="sb-item" onclick="showPage('inquiries')">💬 询价管理 <span class="badge badge-r" id="badge-inq">—</span></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-label">产品库存</div>
+      <div class="sb-item" onclick="showPage('inventory')">📦 库存管理</div>
+      <div class="sb-item" onclick="showPage('add-product')">➕ 新增产品</div>
+    </div>
+  </div>
+
+  <div class="content">
+    <!-- Dashboard -->
+    <div id="page-dashboard" class="page active">
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px">数据看板</div>
+      <div class="stats-grid" id="dashboard-stats"><div class="loading">加载中...</div></div>
+      <div class="sec-title">最近订单</div>
+      <div class="tbl-wrap"><table><thead><tr><th>订单号</th><th>客户</th><th>金额</th><th>状态</th><th>时间</th></tr></thead>
+      <tbody id="dash-orders"><tr><td colspan="5" class="loading">加载中...</td></tr></tbody></table></div>
+      <div class="sec-title">待处理询价</div>
+      <div class="tbl-wrap"><table><thead><tr><th>询价单</th><th>型号</th><th>数量</th><th>客户</th><th>提交时间</th><th>操作</th></tr></thead>
+      <tbody id="dash-inq"><tr><td colspan="6" class="loading">加载中...</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Orders -->
+    <div id="page-orders" class="page">
+      <div class="toolbar">
+        <div class="search-wrap"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-inp" placeholder="搜索订单号、客户..." id="ord-search" oninput="loadOrders()"/></div>
+        <select class="sel" id="ord-status" onchange="loadOrders()">
+          <option value="">全部状态</option><option>confirmed</option><option>processing</option><option>shipped</option><option>completed</option><option>cancelled</option>
+        </select>
+        <button class="btn-secondary ml-auto">导出订单</button>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>订单号</th><th>客户名称</th><th>联系人</th><th>金额</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody id="orders-tbody"><tr><td colspan="7" class="loading">加载中...</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Inquiries -->
+    <div id="page-inquiries" class="page">
+      <div class="toolbar">
+        <select class="sel" id="inq-status-filter" onchange="loadInquiries()">
+          <option value="">全部</option><option value="pending">待报价</option><option value="quoted">已报价</option><option value="confirmed">已确认</option>
+        </select>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>询价单</th><th>型号</th><th>数量</th><th>目标价</th><th>客户</th><th>状态</th><th>时间</th><th>操作</th></tr></thead>
+      <tbody id="inq-tbody"><tr><td colspan="8" class="loading">加载中...</td></tr></tbody></table></div>
+      <!-- Quote form -->
+      <div class="form-panel" id="quote-panel">
+        <div class="form-title">回复报价</div>
+        <input type="hidden" id="quote-id"/>
+        <div class="form-row">
+          <div class="form-g"><div class="form-label">报价（元/片）*</div><input class="form-inp" id="quote-price" type="number" step="0.01" placeholder="如 8.50"/></div>
+          <div class="form-g"><div class="form-label">备注</div><input class="form-inp" id="quote-notes" placeholder="可选"/></div>
+        </div>
+        <button class="btn-cancel" onclick="document.getElementById('quote-panel').classList.remove('open')">取消</button>
+        <button class="btn-submit" onclick="submitQuote()">发送报价</button>
+      </div>
+    </div>
+
+    <!-- Inventory -->
+    <div id="page-inventory" class="page">
+      <div class="toolbar">
+        <div class="search-wrap"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input class="search-inp" placeholder="搜索型号..." id="inv-search" oninput="loadInventory()"/></div>
+        <select class="sel" id="inv-status" onchange="loadInventory()">
+          <option value="">全部状态</option><option value="ok">充足</option><option value="low">紧张</option><option value="out">缺货</option>
+        </select>
+        <button class="btn-blue ml-auto" onclick="showPage('add-product')">+ 新增产品</button>
+      </div>
+      <div class="tbl-wrap"><table><thead><tr><th>型号</th><th>品牌</th><th>类别</th><th>库存量</th><th>库存状态</th><th>采购价</th><th>销售价</th><th>毛利率</th><th>操作</th></tr></thead>
+      <tbody id="inv-tbody"><tr><td colspan="9" class="loading">加载中...</td></tr></tbody></table></div>
+    </div>
+
+    <!-- Add Product -->
+    <div id="page-add-product" class="page">
+      <div style="font-size:15px;font-weight:600;margin-bottom:16px">新增产品</div>
+      <div style="background:#fff;border:1px solid var(--border);border-radius:10px;padding:24px;max-width:700px">
+        <div class="form-row">
+          <div class="form-g"><div class="form-label">产品型号 *</div><input class="form-inp" id="new-model" placeholder="如 STM32F103C8T6"/></div>
+          <div class="form-g"><div class="form-label">品牌 *</div><input class="form-inp" id="new-brand" placeholder="如 ST"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-g"><div class="form-label">类别 *</div>
+            <select class="form-inp" id="new-cat"><option>MCU</option><option>存储</option><option>功率</option><option>无线</option><option>模拟</option><option>其他</option></select>
+          </div>
+          <div class="form-g"><div class="form-label">封装</div><input class="form-inp" id="new-pkg" placeholder="如 LQFP48"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-g"><div class="form-label">库存量（片）</div><input class="form-inp" id="new-stock" type="number" placeholder="0"/></div>
+          <div class="form-g"><div class="form-label">最小起订量</div><input class="form-inp" id="new-minqty" type="number" placeholder="1000"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-g"><div class="form-label">采购价（元/片）</div><input class="form-inp" id="new-cost" type="number" step="0.01" placeholder="0.00"/></div>
+          <div class="form-g"><div class="form-label">销售价（元/片）</div><input class="form-inp" id="new-sale" type="number" step="0.01" placeholder="0.00"/></div>
+        </div>
+        <div class="form-g" style="margin-bottom:12px"><div class="form-label">描述</div><input class="form-inp" id="new-desc" placeholder="简要描述，如 ARM Cortex-M3 · 72MHz"/></div>
+        <div class="form-g" style="margin-bottom:16px"><div class="form-label">规格参数</div><input class="form-inp" id="new-specs" placeholder="如 主频72MHz,Flash64KB,RAM20KB"/></div>
+        <div style="margin-bottom:16px"><label style="display:flex;align-items:center;gap:8px;font-size:13px;cursor:pointer"><input type="checkbox" id="new-domestic"/> 国产品牌</label></div>
+        <button class="btn-submit" onclick="saveProduct()">保存产品</button>
+        <button class="btn-cancel" onclick="showPage('inventory')" style="margin-left:8px">取消</button>
+        <div id="new-msg" style="margin-top:10px;font-size:13px;color:var(--green)"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = '';
+const fmt = n => '¥' + Number(n).toLocaleString('zh-CN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const statusLabel = {pending:'待报价',quoted:'已报价',confirmed:'已确认',processing:'备货中',shipped:'已发货',completed:'已完成',cancelled:'已取消'};
+const statusCls = {pending:'s-pending',quoted:'s-quoted',confirmed:'s-confirmed',processing:'s-processing',shipped:'s-shipped'};
+
+function showPage(p){
+  document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));
+  document.getElementById('page-'+p).classList.add('active');
+  document.querySelectorAll('.sb-item').forEach(x=>x.classList.remove('active'));
+  const pages = {dashboard:0,orders:1,inquiries:2,inventory:3,'add-product':4};
+  const items = document.querySelectorAll('.sb-item');
+  if(items[pages[p]]) items[pages[p]].classList.add('active');
+  if(p==='dashboard') loadDashboard();
+  if(p==='orders') loadOrders();
+  if(p==='inquiries') loadInquiries();
+  if(p==='inventory') loadInventory();
+}
+
+async function loadDashboard(){
+  const [orders, inqStat, prodStat] = await Promise.all([
+    fetch(`${API}/api/orders/stats/summary`).then(r=>r.json()),
+    fetch(`${API}/api/inquiries/stats/pending-count`).then(r=>r.json()),
+    fetch(`${API}/api/products/stats/summary`).then(r=>r.json())
+  ]);
+  document.getElementById('badge-orders').textContent = orders.processing || 0;
+  document.getElementById('badge-inq').textContent = inqStat.pending || 0;
+  document.getElementById('dashboard-stats').innerHTML = `
+    <div class="stat"><div class="stat-label">总销售额</div><div class="stat-val">${fmt(orders.total_revenue)}</div><div class="stat-sub">累计成交金额</div></div>
+    <div class="stat"><div class="stat-label">总订单数</div><div class="stat-val">${orders.total_orders}</div><div class="stat-sub">${orders.processing} 笔备货中</div></div>
+    <div class="stat"><div class="stat-label">待处理询价</div><div class="stat-val" style="color:var(--red)">${inqStat.pending}</div><div class="stat-sub warn">需尽快回复</div></div>
+    <div class="stat"><div class="stat-label">产品总数</div><div class="stat-val">${prodStat.total}</div><div class="stat-sub">${prodStat.out_stock} 款缺货</div></div>`;
+  // Recent orders
+  const orderList = await fetch(`${API}/api/orders/?limit=5`).then(r=>r.json());
+  document.getElementById('dash-orders').innerHTML = orderList.map(o=>`
+    <tr><td style="color:var(--blue);font-weight:600">${o.order_no}</td><td>${o.company}</td>
+    <td style="font-weight:600;color:var(--red)">${fmt(o.total)}</td>
+    <td><span class="s ${statusCls[o.status]||''}">${statusLabel[o.status]||o.status}</span></td>
+    <td style="color:var(--text3)">${o.created_at}</td></tr>`).join('');
+  // Pending inquiries
+  const inqList = await fetch(`${API}/api/inquiries/?status=pending&limit=5`).then(r=>r.json());
+  document.getElementById('dash-inq').innerHTML = inqList.length
+    ? inqList.map(i=>`<tr><td style="color:var(--blue)">${i.inquiry_no}</td><td style="font-weight:600">${i.model}</td>
+        <td>${i.quantity.toLocaleString()}片</td><td>${i.company||'—'}</td>
+        <td style="color:var(--text3)">${i.created_at}</td>
+        <td><span class="action-link" onclick="openQuote(${i.id})">回复报价</span></td></tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:20px">无待处理询价</td></tr>';
+}
+
+async function loadOrders(){
+  const status = document.getElementById('ord-status').value;
+  let url = `${API}/api/orders/?limit=50`;
+  if(status) url += `&status=${status}`;
+  const data = await fetch(url).then(r=>r.json());
+  document.getElementById('orders-tbody').innerHTML = data.map(o=>`
+    <tr><td style="color:var(--blue);font-weight:600">${o.order_no}</td><td>${o.company}</td><td>${o.contact}</td>
+    <td style="font-weight:600;color:var(--red)">${fmt(o.total)}</td>
+    <td><span class="s ${statusCls[o.status]||''}">${statusLabel[o.status]||o.status}</span></td>
+    <td style="color:var(--text3)">${o.created_at}</td>
+    <td>
+      <select onchange="updateOrderStatus(${o.id},this.value)" style="font-size:11px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:#fff">
+        ${['confirmed','processing','shipped','completed','cancelled'].map(s=>`<option value="${s}"${o.status===s?' selected':''}>${statusLabel[s]}</option>`).join('')}
+      </select>
+    </td></tr>`).join('') || '<tr><td colspan="7" style="text-align:center;color:var(--text3);padding:20px">暂无订单</td></tr>';
+}
+
+async function updateOrderStatus(id, status){
+  await fetch(`${API}/api/orders/${id}/status?status=${status}`,{method:'PUT'});
+}
+
+async function loadInquiries(){
+  const status = document.getElementById('inq-status-filter').value;
+  let url = `${API}/api/inquiries/?limit=50`;
+  if(status) url += `&status=${status}`;
+  const data = await fetch(url).then(r=>r.json());
+  document.getElementById('badge-inq').textContent = data.filter(x=>x.status==='pending').length;
+  document.getElementById('inq-tbody').innerHTML = data.map(i=>`
+    <tr><td style="color:var(--blue)">${i.inquiry_no}</td><td style="font-weight:600">${i.model}</td>
+    <td>${i.quantity.toLocaleString()}片</td><td>${i.target_price ? fmt(i.target_price)+'/片' : '—'}</td>
+    <td>${i.company||'—'}</td>
+    <td><span class="s ${statusCls[i.status]||'s-pending'}">${statusLabel[i.status]||i.status}</span></td>
+    <td style="color:var(--text3);font-size:12px">${i.created_at}</td>
+    <td>
+      ${i.status==='pending'?`<span class="action-link" onclick="openQuote(${i.id})">回复报价</span>`:''}
+      ${i.status==='quoted'?`<span class="action-link" onclick="confirmInq(${i.id})">标记确认</span>`:''}
+    </td></tr>`).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:20px">暂无数据</td></tr>';
+}
+
+function openQuote(id){
+  document.getElementById('quote-id').value = id;
+  document.getElementById('quote-price').value = '';
+  document.getElementById('quote-notes').value = '';
+  document.getElementById('quote-panel').classList.add('open');
+  document.getElementById('quote-panel').scrollIntoView({behavior:'smooth'});
+}
+
+async function submitQuote(){
+  const id = document.getElementById('quote-id').value;
+  const price = parseFloat(document.getElementById('quote-price').value);
+  if(!price){ alert('请输入报价'); return; }
+  await fetch(`${API}/api/inquiries/${id}/quote`,{method:'PUT',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({quoted_price:price,notes:document.getElementById('quote-notes').value})});
+  document.getElementById('quote-panel').classList.remove('open');
+  loadInquiries();
+  alert('✅ 报价已发送');
+}
+
+async function confirmInq(id){
+  await fetch(`${API}/api/inquiries/${id}/confirm`,{method:'PUT'});
+  loadInquiries();
+}
+
+async function loadInventory(){
+  const search = document.getElementById('inv-search').value.toLowerCase();
+  const statusFilter = document.getElementById('inv-status').value;
+  const data = await fetch(`${API}/api/inventory/`).then(r=>r.json());
+  const filtered = data.filter(p=>
+    (!search || p.model.toLowerCase().includes(search) || p.brand.toLowerCase().includes(search)) &&
+    (!statusFilter || p.stock_status === statusFilter)
+  );
+  document.getElementById('inv-tbody').innerHTML = filtered.map(p=>{
+    const pct = p.stock === 0 ? 0 : Math.min(100, Math.round(p.stock / 200));
+    const cls = p.stock_status === 'ok' ? 'p-ok' : p.stock_status === 'low' ? 'p-low' : 'p-out';
+    const scls = p.stock_status === 'ok' ? 's-confirmed' : p.stock_status === 'low' ? 's-pending' : 's-cancelled';
+    const slabel = p.stock_status === 'ok' ? '充足' : p.stock_status === 'low' ? '紧张' : '缺货';
+    const margin = p.cost_price > 0 ? Math.round((1 - p.cost_price/p.sale_price)*100) : 0;
+    return `<tr>
+      <td style="font-weight:600">${p.model}</td><td>${p.brand}</td><td>${p.category}</td>
+      <td><div>${p.stock.toLocaleString()} 片</div><div class="pbar"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div></td>
+      <td><span class="s ${scls}">${slabel}</span></td>
+      <td>${fmt(p.cost_price)}</td><td>${fmt(p.sale_price)}</td>
+      <td style="color:${margin>30?'var(--green)':'var(--amber)'}"><strong>${margin}%</strong></td>
+      <td><span class="action-link">编辑</span></td></tr>`;
+  }).join('') || '<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:20px">暂无数据</td></tr>';
+}
+
+async function saveProduct(){
+  const body = {
+    model: document.getElementById('new-model').value.trim(),
+    brand: document.getElementById('new-brand').value.trim(),
+    category: document.getElementById('new-cat').value,
+    package: document.getElementById('new-pkg').value,
+    description: document.getElementById('new-desc').value,
+    specs: document.getElementById('new-specs').value,
+    stock: parseInt(document.getElementById('new-stock').value)||0,
+    cost_price: parseFloat(document.getElementById('new-cost').value)||0,
+    sale_price: parseFloat(document.getElementById('new-sale').value)||0,
+    min_qty: parseInt(document.getElementById('new-minqty').value)||1,
+    is_domestic: document.getElementById('new-domestic').checked ? 1 : 0
+  };
+  if(!body.model||!body.brand){ alert('请填写型号和品牌'); return; }
+  const res = await fetch(`${API}/api/products/`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());
+  document.getElementById('new-msg').textContent = `✅ 产品 ${body.model} 创建成功（ID: ${res.id}）`;
+  setTimeout(()=>showPage('inventory'), 1500);
+}
+
+loadDashboard();
+</script>
+</body>
+</html>
